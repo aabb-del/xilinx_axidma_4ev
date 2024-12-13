@@ -34,6 +34,7 @@
  * Internal Definitions
  *----------------------------------------------------------------------------*/
 
+
 // TODO: Maybe this can be improved?
 static struct axidma_device *axidma_dev;
 
@@ -274,7 +275,7 @@ static int axidma_mmap(struct file *file, struct vm_area_struct *vma)
     dma_alloc->user_addr = (void *)vma->vm_start;
 
     // Configure the DMA device
-    of_dma_configure(dev->device, NULL);
+    of_dma_configure(dev->device, NULL, true);
 
     // Allocate the requested region a contiguous and uncached for DMA
     dma_alloc->kern_addr = dma_alloc_coherent(&dev->pdev->dev, dma_alloc->size,
@@ -326,11 +327,12 @@ ret:
 static bool axidma_access_ok(const void __user *arg, size_t size, bool readonly)
 {
     // Note that VERIFY_WRITE implies VERIFY_WRITE, so read-write is handled
-    if (!readonly && !access_ok(VERIFY_WRITE, arg, size)) {
+    //if (!readonly && !access_ok(VERIFY_WRITE, arg, size)) {
+    if (!readonly && !access_ok(arg, size)) {
         axidma_err("Argument address %p, size %zu cannot be written to.\n",
                    arg, size);
         return false;
-    } else if (!access_ok(VERIFY_READ, arg, size)) {
+    } else if (!access_ok(arg, size)) {
         axidma_err("Argument address %p, size %zu cannot be read from.\n",
                    arg, size);
         return false;
